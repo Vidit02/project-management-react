@@ -1,5 +1,28 @@
-import React from 'react';
+import React, { useState } from 'react';
+import axios, { Axios } from 'axios';
+import { useNavigate } from 'react-router-dom'
+import { Formik, useFormik } from 'formik';
+import { useForm } from 'react-hook-form'
+
 export const Login = (props) => {
+    const navigate = useNavigate()
+    const {
+        register,
+        handleSubmit,
+        reset,
+        formState: {errors}
+    } = useForm()
+
+    const loginUser = async (data) => {
+        try{
+            const res = await axios.post("http://localhost:9890/user/login",data);
+            console.log(res);
+            props.viewToast("success",`Welcome back, ${res.data.name}`)
+        } catch(err){
+            props.viewToast("error",'Invalid Credentials')
+        }
+        reset();
+    }
     return (
         <>
             <main className="main-content  mt-0">
@@ -14,18 +37,25 @@ export const Login = (props) => {
                                             <p className="mb-0">Enter your email and password to sign in</p>
                                         </div>
                                         <div className="card-body">
-                                            <form role="form">
+                                            <form role="form" onSubmit={handleSubmit(loginUser)}>
                                                 <label>Email</label>
                                                 <div className="mb-3">
-                                                    <input type="email" className="form-control" placeholder="Email" aria-label="Email" aria-describedby="email-addon" />
+                                                    <input
+                                                        type="email"
+                                                        className="form-control"
+                                                        placeholder="Email" 
+                                                        aria-label="Email" 
+                                                        aria-describedby="email-addon"
+                                                        {...register("emailid",{required:true})} />
                                                 </div>
+                                                {errors.emailid && <p>Email is required</p>}
                                                 <label>Password</label>
                                                 <div className="mb-3">
-                                                    <input type="password" className="form-control" placeholder="Password" aria-label="Password" aria-describedby="password-addon" />
+                                                    <input type="password" {...register("password",{required:true})} className="form-control" placeholder="Password" aria-label="Password" aria-describedby="password-addon" />
                                                 </div>
-                                                
+                                                {errors.password && <p>Password is required</p>}
                                                 <div className="text-center">
-                                                    <button type="button" className="btn bg-gradient-info w-100 mt-4 mb-0">Sign in</button>
+                                                    <button type="submit" className="btn bg-gradient-info w-100 mt-4 mb-0">Sign in</button>
                                                 </div>
                                             </form>
                                         </div>
